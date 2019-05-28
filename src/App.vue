@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <base-spinner></base-spinner>
-    <!-- <router-view/> -->
+    <base-spinner/>
+    <router-view/>
   </div>
 </template>
 
@@ -21,5 +21,9 @@ export default {
 
 
 <style lang="scss">
-
+  #app {
+    min-height: 100vh;
+    color: var(--light);
+    background-color: var(--dark);
+  }
 </style>
