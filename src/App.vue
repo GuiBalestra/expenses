@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <base-spinner></base-spinner>
-    <button @click="mostrarSpinner">Mostrar Spinner</button>
     <!-- <router-view/> -->
   </div>
 </template>
@@ -14,10 +13,8 @@ export default {
   components: {
     BaseSpinner
   },
-  methods: {
-    mostrarSpinner() {
-      this.$root.$emit('Spinner::show');
-    }
+  mounted() {
+    console.log(this.$firebase);
   }
 }
 </script>
