@@ -53,7 +53,7 @@ export default {
       try {
         const res = await this.$firebase.auth().signInWithEmailAndPassword(email, password)
         window.uid = res.user.uid
-        // this.$router.push({name: 'home'})
+        this.$router.push({ name: 'home' })
       } catch (err) {
         console.log(err)
       }
