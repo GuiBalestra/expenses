@@ -5,46 +5,90 @@
       Novo Gasto
     </button>
 
-    <div class="modal fade"
-    :class="{show: showModal}"
-    :style="{display: showModal ? 'block' : 'none'}">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLive"></h5>
-            <button type="button" class="close" aria-label="Close" @click="closeModal()">
-              <span aria-hidden="true">x</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal()">Close</button>
-            <button type="button" class="btn btn-primary">Save Changes</button>
+    <form @submit.prevent="submit()">
+      <div
+        class="modal fade"
+        :class="{show: showModal}"
+        :style="{display: showModal ? 'block' : 'none'}"
+      >
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLive">Adicionar um novo gasto</h5>
+              <button type="button" class="close" aria-label="Close" @click="closeModal()">
+                <span aria-hidden="true">x</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="form-group col-8">
+                  <label for>Descrição</label>
+                  <input type="text" class="form-control" required v-model="form.description">
+                </div>
+                <div class="form-group col-4">
+                  <label for>Valor (R$)</label>
+                  <input type="text" class="form-control" required v-model="form.value">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @click="closeModal()">Fechar</button>
+              <button class="btn btn-primary">Incluir novo gasto</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="modal-backdrop fade"
-    :class="{show: showModal}"
-    :style="{display: showModal ? 'block' : 'none'}">
-    </div>
+      <div
+        class="modal-backdrop fade"
+        :class="{show: showModal}"
+        :style="{display: showModal ? 'block' : 'none'}"
+      ></div>
+    </form>
   </div>
 </template>
 
 <script>
 export default {
   data: () => ({
-    showModal: false
+    showModal: false,
+    form: {
+      description: '',
+      value: ''
+    }
   }),
   methods: {
-    closeModal () {
+    closeModal() {
       this.showModal = false
+    },
+    submit () {
+      this.$root.$emit('Spinner::show')
+      const ref = this.$firebase.database().ref(window.uid)
+      const id = ref.push().key
+
+      const payload = {
+        id,
+        receipt: '',
+        value: this.form.value,
+        createdAt: new Date().getTime(),
+        description: this.form.description
+      }
+
+      ref.child(id).set(payload, err => {
+        this.$root.$emit('Spinner::hide')
+
+        if (err) {
+          console.error(err)
+        } else {
+          this.closeModal()
+        }
+      })
     }
   }
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+.modal {
+  color: var(--darker);
+}
 </style>
