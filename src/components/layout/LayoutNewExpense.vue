@@ -44,7 +44,11 @@
                   >Adicionar Comprovante</button>
                   <div class="mt-2" v-if="form.receipt">
                     {{ form.receipt.name }}
-                    <button type="button" class="btn badge badge-light" @click="form.receipt = ''">
+                    <button
+                      type="button"
+                      class="btn badge badge-light"
+                      @click="form.receipt = ''"
+                    >
                       <i class="fa fa-trash text-danger"></i>
                     </button>
                   </div>
@@ -53,7 +57,15 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" @click="closeModal()">Fechar</button>
-              <button class="btn btn-primary">Incluir novo gasto</button>
+              <button class="btn btn-primary" :disabled="loading">
+                <template v-if="loading">
+                  <i class="fa fa-spin fa-spinner"></i>
+                  Incluindo...
+                </template>
+                <template v-else>
+                  Incluir novo gasto
+                </template>
+              </button>
             </div>
           </div>
         </div>
@@ -71,6 +83,7 @@
 export default {
   data: () => ({
     showModal: false,
+    loading: false,
     form: {
       receipt: '',
       description: '',
@@ -102,13 +115,18 @@ export default {
     },
     async submit () {
       let url = ''
+      this.loading = true
       try {
         this.$root.$emit('Spinner::show')
         const ref = this.$firebase.database().ref(window.uid)
         const id = ref.push().key
 
         if (this.form.receipt) {
-          const snapshot = await this.$firebase.storage().ref(window.uid).child(this.fileName).put(this.form.receipt)
+          const snapshot = await this.$firebase
+            .storage()
+            .ref(window.uid)
+            .child(this.fileName)
+            .put(this.form.receipt)
           url = await snapshot.ref.getDownloadURL()
         }
 
@@ -121,15 +139,26 @@ export default {
 
         ref.child(id).set(payload, err => {
           if (err) {
-            console.error(err)
+            this.$root.$emit('Notification::show', {
+              type: 'danger',
+              message: 'Não foi possível inserir o gasto, tente novamente.'
+            })
           } else {
+            this.$root.$emit('Notification::show', {
+              type: 'success',
+              message: 'Gasto inserido com sucesso.'
+            })
             this.closeModal()
           }
         })
       } catch (err) {
-        console.error(err);
+        this.$root.$emit('Notification::show', {
+          type: 'danger',
+          message: 'Não foi possível inserir o gasto, tente novamente.'
+        })
       } finally {
         this.$root.$emit('Spinner::hide')
+        this.loading = false
       }
     }
   }
