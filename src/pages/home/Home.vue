@@ -43,14 +43,18 @@ export default {
         lowest: {}
       }
 
-      if (exp.length) {
-        values.totalSpent = exp.map(e => parseFloat(e.value)).reduce((acc, cur) => acc + cur, 0)
+      const arrLength = exp.length
 
-        values.average = values.totalSpent / exp.length
+      if (arrLength) {
+        values.totalSpent = exp.map(e => e.value).reduce((acc, cur) => acc + cur, 0)
 
-        values.biggest = exp.sort((a, b) => parseFloat(b.value) - parseFloat(a.value))[0]
+        values.average = values.totalSpent / arrLength
 
-        values.lowest = exp.sort((a, b) => parseFloat(a.value) - parseFloat(b.value))[0]
+        const sortedArr = exp.sort((a, b) => b.value - a.value)
+
+        values.biggest = sortedArr[0]
+
+        values.lowest = sortedArr[arrLength - 1]
       }
       return values
     }
@@ -61,7 +65,11 @@ export default {
 
       ref.on('value', data => {
         const values = data.val()
-        this.expenses = Object.keys(values).map(i => values[i])
+        this.expenses = Object.keys(values).map(i => values[i]).map((v) => ({
+          receipt: v.receipt,
+          description: v.description,
+          value: parseFloat(v.value)
+        }))
       })
     }
   }
